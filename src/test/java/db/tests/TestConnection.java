@@ -1,3 +1,5 @@
+package db.tests;
+
 import org.example.bookapi.util.HibernateUtil;
 import org.junit.jupiter.api.Test;
 
