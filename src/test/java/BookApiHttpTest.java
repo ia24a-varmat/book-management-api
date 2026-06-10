@@ -305,4 +305,160 @@ public class BookApiHttpTest {
             }
         }
     }
+    @Test
+    public void testCountBooksPositive() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(BASE_URL + "/books/count");
+
+            try (CloseableHttpResponse response = client.execute(request)) {
+                assertEquals(200, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+
+    @Test
+    public void testGetBooksByAvailablePositive() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(BASE_URL + "/books/available/true");
+
+            try (CloseableHttpResponse response = client.execute(request)) {
+                assertEquals(200, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+
+    @Test
+    public void testGetBooksByPricePositive() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(BASE_URL + "/books/price/20.00");
+
+            try (CloseableHttpResponse response = client.execute(request)) {
+                assertEquals(200, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+
+    @Test
+    public void testCreateMultipleBooksPositive() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(BASE_URL + "/books/bulk");
+            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            request.setHeader(HttpHeaders.AUTHORIZATION, adminAuth());
+
+            String json = """
+                    [
+                      {
+                        "bookId": 901,
+                        "title": "Bulk JUnit Book 1",
+                        "author": "Author A",
+                        "publishDate": "2026-01-01",
+                        "price": 15.90,
+                        "pages": 120,
+                        "available": true,
+                        "category": {
+                          "categoryId": 1
+                        }
+                      },
+                      {
+                        "bookId": 902,
+                        "title": "Bulk JUnit Book 2",
+                        "author": "Author B",
+                        "publishDate": "2026-01-01",
+                        "price": 25.90,
+                        "pages": 180,
+                        "available": false,
+                        "category": {
+                          "categoryId": 1
+                        }
+                      }
+                    ]
+                    """;
+
+            request.setEntity(new StringEntity(json, StandardCharsets.UTF_8));
+
+            try (CloseableHttpResponse response = client.execute(request)) {
+                assertEquals(201, response.getStatusLine().getStatusCode());
+            }
+
+            HttpDelete cleanup = new HttpDelete(BASE_URL + "/books/date/2026-01-01");
+            cleanup.setHeader(HttpHeaders.AUTHORIZATION, adminAuth());
+            client.execute(cleanup).close();
+        }
+    }
+
+    @Test
+    public void testCreateMultipleBooksWithoutAuthNegative() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(BASE_URL + "/books/bulk");
+            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+
+            String json = """
+                    []
+                    """;
+
+            request.setEntity(new StringEntity(json, StandardCharsets.UTF_8));
+
+            try (CloseableHttpResponse response = client.execute(request)) {
+                assertEquals(401, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+
+    @Test
+    public void testDeleteBooksByDatePositive() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost create = new HttpPost(BASE_URL + "/books/bulk");
+            create.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            create.setHeader(HttpHeaders.AUTHORIZATION, adminAuth());
+
+            create.setEntity(new StringEntity("""
+                    [
+                      {
+                        "bookId": 910,
+                        "title": "Delete Date Book 1",
+                        "author": "Author A",
+                        "publishDate": "2026-02-01",
+                        "price": 15.90,
+                        "pages": 120,
+                        "available": true,
+                        "category": {
+                          "categoryId": 1
+                        }
+                      },
+                      {
+                        "bookId": 911,
+                        "title": "Delete Date Book 2",
+                        "author": "Author B",
+                        "publishDate": "2026-02-01",
+                        "price": 25.90,
+                        "pages": 180,
+                        "available": false,
+                        "category": {
+                          "categoryId": 1
+                        }
+                      }
+                    ]
+                    """, StandardCharsets.UTF_8));
+
+            client.execute(create).close();
+
+            HttpDelete delete = new HttpDelete(BASE_URL + "/books/date/2026-02-01");
+            delete.setHeader(HttpHeaders.AUTHORIZATION, adminAuth());
+
+            try (CloseableHttpResponse response = client.execute(delete)) {
+                assertEquals(200, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+
+    @Test
+    public void testDeleteBooksByDateWithoutAuthNegative() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpDelete request = new HttpDelete(BASE_URL + "/books/date/2026-03-01");
+
+            try (CloseableHttpResponse response = client.execute(request)) {
+                assertEquals(401, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
 }
