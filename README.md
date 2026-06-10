@@ -24,6 +24,42 @@ Beziehung:
 Eine Kategorie kann mehrere Bücher enthalten (1:n).
 
 ---
+# Technologie-Stack
+
+Für die Umsetzung des Projekts wurden folgende Technologien verwendet:
+
+| Technologie | Zweck |
+|------------|------------|
+| Java 23 | Programmiersprache |
+| Maven | Build- und Dependency-Management |
+| Jersey (JAX-RS) | REST API |
+| Hibernate / JPA | Persistenzschicht |
+| MySQL | Datenbank |
+| Tomcat 11 | Applikationsserver |
+| JUnit 5 | Unit- und Integrationstests |
+| Apache HttpClient | Testen der REST-Endpunkte |
+| Git / GitHub | Versionsverwaltung |
+
+---
+
+# Architektur
+
+Die Anwendung wurde nach dem Schichtenmodell aufgebaut.
+
+```text
+Client
+  ↓
+Resource (REST API)
+  ↓
+Service
+  ↓
+DAO
+  ↓
+Hibernate / JPA
+  ↓
+MySQL Datenbank
+```
+
 
 # Visuals
 
@@ -35,6 +71,7 @@ Beschreibung:
 Eine Kategorie kann mehrere Bücher enthalten. Jedes Buch gehört genau einer Kategorie.
 
 ---
+
 
 ## Klassendiagramm
 
