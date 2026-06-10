@@ -54,11 +54,18 @@ public class BooksResource {
     @POST
     @RolesAllowed("ADMIN")
     public Response createBook(@Valid Book book) {
-        service.save(book);
+        try {
+            service.save(book);
 
-        return Response.status(Response.Status.CREATED)
-                .entity(book)
-                .build();
+            return Response.status(Response.Status.CREATED)
+                    .entity(book)
+                    .build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Book could not be created")
+                    .build();
+        }
     }
 
     @PUT
@@ -73,10 +80,15 @@ public class BooksResource {
                     .build();
         }
 
-        book.setBookId(id);
-        service.update(book);
-
-        return Response.ok(book).build();
+        try {
+            book.setBookId(id);
+            service.update(book);
+            return Response.ok(book).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Book could not be updated")
+                    .build();
+        }
     }
 
     @DELETE
@@ -123,11 +135,14 @@ public class BooksResource {
     @Path("/bulk")
     @RolesAllowed("ADMIN")
     public Response createMultipleBooks(@Valid List<Book> books) {
-        service.saveAll(books);
-
-        return Response.status(Response.Status.CREATED)
-                .entity(books)
-                .build();
+        try {
+            service.saveAll(books);
+            return Response.status(Response.Status.CREATED).entity(books).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Books could not be created")
+                    .build();
+        }
     }
 
     @DELETE
@@ -139,6 +154,24 @@ public class BooksResource {
 
         int deleted = service.deleteByPublishDate(date);
 
+        return Response.ok(deleted + " books deleted").build();
+    }
+
+    @GET
+    @Path("/date/{date}")
+    @PermitAll
+    public Response getBooksByDate(@PathParam("date") String dateString) {
+        LocalDate date = LocalDate.parse(dateString);
+        List<Book> books = service.findByPublishDate(date);
+        return Response.ok(books).build();
+    }
+
+    @DELETE
+    @Path("/all")
+    @RolesAllowed("ADMIN")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response deleteAllBooks() {
+        int deleted = service.deleteAll();
         return Response.ok(deleted + " books deleted").build();
     }
 }

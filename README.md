@@ -56,6 +56,7 @@ Die Anwendung wurde nach folgendem Aufbau umgesetzt:
 ![test2.png](images/test2.png)
 
 
+
 Beschreibung:
 
 Die REST-Services wurden mit JUnit und Apache HttpClient getestet.

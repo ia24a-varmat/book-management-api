@@ -50,4 +50,11 @@ public class BookService {
     public int deleteByPublishDate(LocalDate date) {
         return dao.deleteByPublishDate(date);
     }
+    public List<Book> findByPublishDate(LocalDate date) {
+        return dao.findByPublishDate(date);
+    }
+
+    public int deleteAll() {
+        return dao.deleteAll();
+    }
 }

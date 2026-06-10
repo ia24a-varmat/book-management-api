@@ -20,6 +20,17 @@ public class BookApiHttpTest {
         return "Basic " + Base64.getEncoder()
                 .encodeToString(login.getBytes(StandardCharsets.UTF_8));
     }
+    private String userAuth() {
+        String login = "user:1234";
+        return "Basic " + Base64.getEncoder()
+                .encodeToString(login.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private String wrongAuth() {
+        String login = "admin:wrong";
+        return "Basic " + Base64.getEncoder()
+                .encodeToString(login.getBytes(StandardCharsets.UTF_8));
+    }
 
     @Test
     public void testPingPositive() throws Exception {
@@ -455,6 +466,60 @@ public class BookApiHttpTest {
     public void testDeleteBooksByDateWithoutAuthNegative() throws Exception {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpDelete request = new HttpDelete(BASE_URL + "/books/date/2026-03-01");
+
+            try (CloseableHttpResponse response = client.execute(request)) {
+                assertEquals(401, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+    @Test
+    public void testWrongPasswordIsRejected() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(BASE_URL + "/books");
+            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            request.setHeader(HttpHeaders.AUTHORIZATION, wrongAuth());
+
+            request.setEntity(new StringEntity("""
+                {
+                  "bookId": 990,
+                  "title": "Wrong Auth",
+                  "author": "Test",
+                  "publishDate": "2026-01-01",
+                  "price": 10.00,
+                  "pages": 100,
+                  "available": true,
+                  "category": {
+                    "categoryId": 1
+                  }
+                }
+                """, StandardCharsets.UTF_8));
+
+            try (CloseableHttpResponse response = client.execute(request)) {
+                assertEquals(401, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+    @Test
+    public void testUserRoleCannotCreateBook() throws Exception {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(BASE_URL + "/books");
+            request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+            request.setHeader(HttpHeaders.AUTHORIZATION, userAuth());
+
+            request.setEntity(new StringEntity("""
+                {
+                  "bookId": 991,
+                  "title": "User Role Test",
+                  "author": "Test",
+                  "publishDate": "2026-01-01",
+                  "price": 10.00,
+                  "pages": 100,
+                  "available": true,
+                  "category": {
+                    "categoryId": 1
+                  }
+                }
+                """, StandardCharsets.UTF_8));
 
             try (CloseableHttpResponse response = client.execute(request)) {
                 assertEquals(401, response.getStatusLine().getStatusCode());

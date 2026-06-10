@@ -44,11 +44,18 @@ public class CategoriesResource {
     @POST
     @RolesAllowed("ADMIN")
     public Response createCategory(@Valid Category category) {
-        service.save(category);
+        try {
+            service.save(category);
 
-        return Response.status(Response.Status.CREATED)
-                .entity(category)
-                .build();
+            return Response.status(Response.Status.CREATED)
+                    .entity(category)
+                    .build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Category could not be created")
+                    .build();
+        }
     }
 
     @PUT
@@ -63,10 +70,15 @@ public class CategoriesResource {
                     .build();
         }
 
-        category.setCategoryId(id);
-        service.update(category);
-
-        return Response.ok(category).build();
+        try {
+            category.setCategoryId(id);
+            service.update(category);
+            return Response.ok(category).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Category could not be updated")
+                    .build();
+        }
     }
 
     @DELETE
