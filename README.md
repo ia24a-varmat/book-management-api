@@ -111,6 +111,12 @@ Insgesamt wurden 29 von 29 Tests erfolgreich bestanden.
 
 ---
 
+## Logging
+
+Für die Nachvollziehbarkeit der Datenbankoperationen
+werden Log-Ausgaben mittels SLF4J erzeugt.
+---
+
 # Validierungsregeln
 
 Folgende Validierungsregeln wurden implementiert:
@@ -189,20 +195,12 @@ https://github.com/ia24a-varmat/book-management-api.git
 
 # Zusammenfassung
 
-Im Rahmen dieser Projektarbeit wurde eine vollständige REST-API zur Verwaltung von Büchern und Kategorien entwickelt.
+## Zusammenfassung
 
-Folgende Anforderungen wurden umgesetzt:
+In diesem Projekt wurde eine REST-API zur Verwaltung von Büchern und Kategorien umgesetzt. Die Anwendung arbeitet mit einer MySQL-Datenbank, in der Bücher einer Kategorie zugeordnet werden. Dadurch entsteht eine 1:n-Beziehung zwischen den beiden Datenobjekten.
 
-- MySQL Datenbank
-- Hibernate / JPA
-- Jersey REST Services
-- CRUD Operationen
-- Zusätzliche Services gemäss Aufgabenstellung
-- Validierung
-- Fehlerbehandlung
-- Authentication und Rollen
-- OpenAPI Dokumentation
-- JUnit Tests mit Apache HttpClient
-- Git Versionierung
+Die API wurde mit Jersey, Hibernate/JPA und Maven entwickelt. Über die REST-Endpunkte können Bücher und Kategorien erstellt, gelesen, aktualisiert und gelöscht werden. Zusätzlich wurden weitere Services wie das Zählen der Bücher, das Filtern nach Verfügbarkeit oder Preis sowie das Erstellen mehrerer Bücher umgesetzt.
 
-Damit werden sämtliche Anforderungen der Leistungsbeurteilung M295 erfüllt.
+Die Anwendung enthält Validierungen, Fehlerbehandlung, Logging und eine einfache Authentifizierung mit Rollen. Die Services wurden mit JUnit und Apache HttpClient getestet. Die Schnittstelle ist zusätzlich mit OpenAPI dokumentiert.
+
+Damit zeigt das Projekt den vollständigen Aufbau einer Backend-Schnittstelle von der Datenbank über die Persistenz- und Service-Schicht bis zur REST-API.
