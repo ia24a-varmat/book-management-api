@@ -161,6 +161,19 @@ Die Authentifizierung erfolgt über Basic Authentication und einen Authenticatio
 
 ---
 
+# Datenbank-Skript
+
+Das SQL-Skript zur Erstellung der Datenbankstruktur sowie der Testdaten befindet sich unter:
+
+- [database.sql](docs/database.sql)
+
+Das Skript erstellt:
+- die Tabellen `book` und `category`
+- die Fremdschlüsselbeziehung
+- Beispieldaten für Tests
+
+---
+
 # OpenAPI Dokumentation
 
 Die vollständige OpenAPI-Spezifikation befindet sich unter:
@@ -194,8 +207,6 @@ https://github.com/ia24a-varmat/book-management-api.git
 ---
 
 # Zusammenfassung
-
-## Zusammenfassung
 
 In diesem Projekt wurde eine REST-API zur Verwaltung von Büchern und Kategorien umgesetzt. Die Anwendung arbeitet mit einer MySQL-Datenbank, in der Bücher einer Kategorie zugeordnet werden. Dadurch entsteht eine 1:n-Beziehung zwischen den beiden Datenobjekten.
 
