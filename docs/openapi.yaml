@@ -1,0 +1,500 @@
+openapi: 3.0.0
+info:
+  title: Book Management API
+  version: "1.0"
+  description: REST API zur Verwaltung von Büchern und Kategorien.
+servers:
+  - url: http://localhost:8080/book_management_api_war_exploded/api
+    description: Lokaler Tomcat Server
+
+tags:
+  - name: Books
+    description: Services für die Haupttabelle Book
+  - name: Categories
+    description: Services für die verknüpfte Tabelle Category
+
+paths:
+  /books/ping:
+    get:
+      tags:
+        - Books
+      operationId: ping
+      summary: Ping Service
+      description: Prüft, ob die API läuft.
+      responses:
+        "200":
+          description: API läuft
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: API is running
+
+  /books:
+    get:
+      tags:
+        - Books
+      operationId: getAllBooks
+      summary: Alle Bücher lesen
+      responses:
+        "200":
+          description: Liste aller Bücher
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+
+    post:
+      tags:
+        - Books
+      operationId: createBook
+      summary: Neues Buch erstellen
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Book"
+      responses:
+        "201":
+          description: Buch erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          description: Ungültige Eingabedaten
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+        "401":
+          description: Nicht authentifiziert oder keine Berechtigung
+
+  /books/{id}:
+    get:
+      tags:
+        - Books
+      operationId: getBookById
+      summary: Buch anhand ID lesen
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID des Buches
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Buch gefunden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "404":
+          description: Buch nicht gefunden
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Book not found
+
+    put:
+      tags:
+        - Books
+      operationId: updateBook
+      summary: Buch aktualisieren
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID des Buches
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Book"
+      responses:
+        "200":
+          description: Buch erfolgreich aktualisiert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          description: Ungültige Eingabedaten
+        "401":
+          description: Nicht authentifiziert oder keine Berechtigung
+        "404":
+          description: Buch nicht gefunden
+
+    delete:
+      tags:
+        - Books
+      operationId: deleteBook
+      summary: Buch anhand ID löschen
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID des Buches
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Buch erfolgreich gelöscht
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Book deleted
+        "401":
+          description: Nicht authentifiziert oder keine Berechtigung
+        "404":
+          description: Buch nicht gefunden
+
+  /books/count:
+    get:
+      tags:
+        - Books
+      operationId: countBooks
+      summary: Anzahl Bücher zählen
+      responses:
+        "200":
+          description: Anzahl Bücher
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+                example: 5
+
+  /books/available/{available}:
+    get:
+      tags:
+        - Books
+      operationId: getBooksByAvailable
+      summary: Bücher nach Boolean-Parameter lesen
+      parameters:
+        - name: available
+          in: path
+          required: true
+          description: Verfügbarkeit des Buches
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Gefilterte Bücher
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+
+  /books/price/{price}:
+    get:
+      tags:
+        - Books
+      operationId: getBooksByPrice
+      summary: Bücher nach Kommazahl-Parameter lesen
+      parameters:
+        - name: price
+          in: path
+          required: true
+          description: Mindestpreis
+          schema:
+            type: number
+            format: double
+      responses:
+        "200":
+          description: Bücher mit Preis grösser oder gleich dem Parameter
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+
+  /books/bulk:
+    post:
+      tags:
+        - Books
+      operationId: createMultipleBooks
+      summary: Mehrere Bücher erstellen
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Book"
+      responses:
+        "201":
+          description: Bücher erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+        "400":
+          description: Ungültige Eingabedaten
+        "401":
+          description: Nicht authentifiziert oder keine Berechtigung
+
+  /books/date/{date}:
+    delete:
+      tags:
+        - Books
+      operationId: deleteBooksByDate
+      summary: Bücher anhand Datum löschen
+      security:
+        - basicAuth: []
+      parameters:
+        - name: date
+          in: path
+          required: true
+          description: Veröffentlichungsdatum
+          schema:
+            type: string
+            format: date
+            example: "2026-01-01"
+      responses:
+        "200":
+          description: Bücher wurden gelöscht
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: 2 books deleted
+        "401":
+          description: Nicht authentifiziert oder keine Berechtigung
+
+  /categories:
+    get:
+      tags:
+        - Categories
+      operationId: getAllCategories
+      summary: Alle Kategorien lesen
+      responses:
+        "200":
+          description: Liste aller Kategorien
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+    post:
+      tags:
+        - Categories
+      operationId: createCategory
+      summary: Neue Kategorie erstellen
+      security:
+        - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Category"
+      responses:
+        "201":
+          description: Kategorie erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Ungültige Eingabedaten
+        "401":
+          description: Nicht authentifiziert oder keine Berechtigung
+
+  /categories/{id}:
+    get:
+      tags:
+        - Categories
+      operationId: getCategoryById
+      summary: Kategorie anhand ID lesen
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID der Kategorie
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Kategorie gefunden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Kategorie nicht gefunden
+
+    put:
+      tags:
+        - Categories
+      operationId: updateCategory
+      summary: Kategorie aktualisieren
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID der Kategorie
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Category"
+      responses:
+        "200":
+          description: Kategorie erfolgreich aktualisiert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Ungültige Eingabedaten
+        "401":
+          description: Nicht authentifiziert oder keine Berechtigung
+        "404":
+          description: Kategorie nicht gefunden
+
+    delete:
+      tags:
+        - Categories
+      operationId: deleteCategory
+      summary: Kategorie anhand ID löschen
+      security:
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID der Kategorie
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Kategorie erfolgreich gelöscht
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Category deleted
+        "401":
+          description: Nicht authentifiziert oder keine Berechtigung
+        "404":
+          description: Kategorie nicht gefunden
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    Book:
+      type: object
+      required:
+        - bookId
+        - title
+        - author
+        - publishDate
+        - price
+        - pages
+        - available
+        - category
+      properties:
+        bookId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          maxLength: 100
+          example: Java Grundlagen
+        author:
+          type: string
+          maxLength: 100
+          example: Max Mustermann
+        publishDate:
+          type: string
+          format: date
+          example: "2025-01-01"
+        price:
+          type: number
+          format: double
+          minimum: 0
+          example: 39.90
+        pages:
+          type: integer
+          minimum: 1
+          example: 250
+        available:
+          type: boolean
+          example: true
+        category:
+          $ref: "#/components/schemas/CategoryReference"
+
+    Category:
+      type: object
+      required:
+        - categoryId
+        - name
+      properties:
+        categoryId:
+          type: integer
+          example: 1
+        name:
+          type: string
+          maxLength: 100
+          example: Informatik
+        description:
+          type: string
+          maxLength: 255
+          example: Bücher über Programmierung und IT
+
+    CategoryReference:
+      type: object
+      required:
+        - categoryId
+      properties:
+        categoryId:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Informatik
+        description:
+          type: string
+          example: Bücher über Programmierung und IT
+
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Ungültige Eingabedaten
